@@ -73,9 +73,6 @@ namespace Streaming.Producer.Application
                 if (x != 0)
                     result[index++] = x;
 
-            while (index < result.Length)
-                result[index++] = 0;
-
             return result;
         }
     }
