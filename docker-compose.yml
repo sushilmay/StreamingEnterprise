@@ -1,0 +1,34 @@
+services:
+
+  messagebroker:
+    image: rabbitmq:management
+
+  mongodb:
+    image: mongo:6
+
+  mongo-express:
+    image: mongo-express
+
+  streaming.producer.api:
+    image: ${DOCKER_REGISTRY-}streamingproducerapi
+    build:
+      context: .
+      dockerfile: Services/Streaming.Producer.API/Dockerfile
+
+
+  streaming.processor:
+    image: ${DOCKER_REGISTRY-}streamingprocessor
+    build:
+      context: .
+      dockerfile: Services/Streaming.Processor/Dockerfile
+
+
+  streaming.gateway:
+    image: ${DOCKER_REGISTRY-}streaminggateway
+    build:
+      context: .
+      dockerfile: Gateways/Streaming.Gateway/Dockerfile 
+
+
+volumes:
+    mongo-data:

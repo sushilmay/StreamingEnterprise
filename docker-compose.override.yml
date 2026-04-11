@@ -1,0 +1,89 @@
+
+services:
+
+  messagebroker:
+    container_name: messagebroker-mq
+    hostname: messagebroker-mq
+    environment:
+      - RABBITMQ_DEFAULT_USER=guest
+      - RABBITMQ_DEFAULT_PASS=guest
+    restart: always
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+  
+  mongodb:
+    container_name: mongodb-process
+    hostname: mongodb
+    restart: always
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: admin
+    volumes:
+      - mongo-data:/data/db
+
+  mongo-express:
+    container_name: mongo-express
+    restart: always
+    ports:
+      - "8081:8081"
+    environment:
+      ME_CONFIG_MONGODB_SERVER: mongodb
+      ME_CONFIG_MONGODB_ADMINUSERNAME: admin
+      ME_CONFIG_MONGODB_ADMINPASSWORD: admin
+      ME_CONFIG_MONGODB_AUTH_DATABASE: admin
+    depends_on:
+      - mongodb
+
+  streaming.producer.api:
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_HTTP_PORTS=8080
+      - ASPNETCORE_HTTPS_PORTS=8081
+      - MessageBroker__Host=amqp://messagebroker-mq:5672
+      - MessageBroker__UserName=guest
+      - MessageBroker__Password=guest
+      - MongoDbSettings__ConnectionString=mongodb://admin:admin@mongodb:27017/?authSource=admin
+      - MongoDbSettings__DatabaseName=StreamingDb
+      - MongoDbSettings__CollectionName=ProcessData
+    depends_on:
+      - messagebroker
+    ports:
+      - "6003:8080"
+      - "6063:8081"
+    volumes:
+      - ${APPDATA}/Microsoft/UserSecrets:/home/app/.microsoft/usersecrets:ro
+      - ${APPDATA}/Microsoft/UserSecrets:/root/.microsoft/usersecrets:ro
+      - ${APPDATA}/ASP.NET/Https:/home/app/.aspnet/https:ro
+      - ${APPDATA}/ASP.NET/Https:/root/.aspnet/https:ro
+
+  streaming.processor:
+    environment:
+      - DOTNET_ENVIRONMENT=Development
+      - MessageBroker__Host=amqp://messagebroker-mq:5672
+      - MessageBroker__UserName=guest
+      - MessageBroker__Password=guest
+      - MongoDbSettings__ConnectionString=mongodb://admin:admin@mongodb:27017/?authSource=admin
+      - MongoDbSettings__DatabaseName=StreamingDb
+      - MongoDbSettings__CollectionName=ProcessData
+    depends_on:
+      - messagebroker
+      - mongodb
+
+  streaming.gateway:
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_HTTP_PORTS=8080
+      - ASPNETCORE_HTTPS_PORTS=8081
+    depends_on:
+      - streaming.producer.api
+    ports:
+      - "6004:8080"
+      - "6064:8081"
+    volumes:
+      - ${APPDATA}/Microsoft/UserSecrets:/home/app/.microsoft/usersecrets:ro
+      - ${APPDATA}/Microsoft/UserSecrets:/root/.microsoft/usersecrets:ro
+      - ${APPDATA}/ASP.NET/Https:/home/app/.aspnet/https:ro
+      - ${APPDATA}/ASP.NET/Https:/root/.aspnet/https:ro

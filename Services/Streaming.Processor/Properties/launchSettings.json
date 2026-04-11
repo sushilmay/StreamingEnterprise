@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "Streaming.Processor": {
+      "commandName": "Project"
+    },
+    "Container (Dockerfile)": {
+      "commandName": "Docker"
+    }
+  }
+}
