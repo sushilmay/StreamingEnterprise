@@ -1,9 +1,8 @@
 ﻿using BuildingBlocks.Contracts.Events;
 using MassTransit;
 using Microsoft.Extensions.Logging;
+using Streaming.Producer.Application.Exceptions;
 using Streaming.Producer.Domain;
-using static MassTransit.ValidationResultExtensions;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 using Process = Streaming.Producer.Domain.Process;
 
 namespace Streaming.Producer.Application
@@ -20,22 +19,17 @@ namespace Streaming.Producer.Application
             _logger = logger;
         }
 
-        public async Task<StreamProcessStatusDto> GetProcessProcessStatus(Guid processId)
+        public async Task<StreamProcessStatusDto> GetProcessStatus(Guid processId)
         {
             var result= await _streamProcessorRepository.GetByIdAsync(processId);
-            if (result != null){
-                return new StreamProcessStatusDto(result.ProcessId, result.Status);
-            }
-            return null;
+            return result is null ? throw new ProcessIdNotFoundException(processId.ToString()) : new StreamProcessStatusDto(result.ProcessId, result.Status);
         }
-        public async Task<StreamProcessDataDto> GetProcessProcessData(Guid processId)
+        public async Task<StreamProcessDataDto> GetProcessData(Guid processId)
         {
             var result = await _streamProcessorRepository.GetByIdAsync(processId);
-            if (result != null)
-            {
-                return new StreamProcessDataDto(result.ProcessId, result.InputData, result.OutputData, result.Status);
-            }
-            return null;
+            return result is null ? throw new ProcessIdNotFoundException(processId.ToString()) :
+                new StreamProcessDataDto(result.ProcessId, result.InputData, result.OutputData, result.Status);
+
         }
         public async Task<StreamProcessStatusDto> CreateProcess(StreamProcessDto streamProcess)
         {

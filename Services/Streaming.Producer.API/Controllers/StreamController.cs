@@ -27,7 +27,7 @@ public class StreamController : ControllerBase
     [HttpGet("process/{id}/status")]
     public async Task<IActionResult> ProcessStatus(Guid id)
     {
-        var res = await _service.GetProcessProcessData(id);
+        var res = await _service.GetProcessData(id);
 
         if (res == null)
             return NotFound();
@@ -38,7 +38,7 @@ public class StreamController : ControllerBase
     public async Task<IActionResult> ProcessData(Guid id)
     {
 
-        var res = await _service.GetProcessProcessData(id);
+        var res = await _service.GetProcessData(id);
 
         if (res == null)
             return NotFound();

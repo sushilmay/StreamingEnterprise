@@ -23,12 +23,5 @@ services:
       dockerfile: Services/Streaming.Processor/Dockerfile
 
 
-  streaming.gateway:
-    image: ${DOCKER_REGISTRY-}streaminggateway
-    build:
-      context: .
-      dockerfile: Gateways/Streaming.Gateway/Dockerfile 
-
-
 volumes:
     mongo-data:

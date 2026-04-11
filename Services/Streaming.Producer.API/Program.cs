@@ -2,6 +2,7 @@ using BuildingBlocks.MassTransit;
 using HealthChecks.UI.Client;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using MongoDB.Driver;
+using Streaming.Producer.API.Exceptions.Handler;
 using Streaming.Producer.Application;
 using Streaming.Producer.Domain;
 using Streaming.Producer.Infrastructure;
@@ -28,6 +29,9 @@ builder.Services.AddScoped<IStreamProcessorService, StreamProcessorService>();
 // Controllers
 builder.Services.AddControllers();
 
+//Cross-Cutting Services
+builder.Services.AddExceptionHandler<CustomExceptionHandler>();
+
 builder.Services.AddHealthChecks()
     .AddMongoDb(
         sp => new MongoClient(builder.Configuration["MongoDbSettings:ConnectionString"]),
@@ -35,9 +39,12 @@ builder.Services.AddHealthChecks()
         tags: new[] { "db", "data" },
         failureStatus: Microsoft.Extensions.Diagnostics.HealthChecks.HealthStatus.Unhealthy
     );
+
+
+
 var app = builder.Build();
 app.MapControllers();
-
+app.UseExceptionHandler(options => { });
 app.UseHealthChecks("/health",
     new HealthCheckOptions
     {
