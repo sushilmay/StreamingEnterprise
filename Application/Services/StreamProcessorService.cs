@@ -50,7 +50,7 @@ namespace Streaming.Producer.Application
         public async Task<StreamProcessStatusDto> Process(ProcessDto processDto)
         {
             //Procees Data 
-            var result = processDto.Data.Where(x => x != 0).Concat(processDto.Data.Where(x => x == 0)).ToArray();
+            var result = SwapZero(processDto.Data);
 
             var process = new Process
             {
@@ -62,6 +62,21 @@ namespace Streaming.Producer.Application
             //DB Save
             await _streamProcessorRepository.UpdateAsync(process);
             return new StreamProcessStatusDto(process.ProcessId, process.Status);
+        }
+
+        private int[] SwapZero(int[] data)
+        {
+            var result = new int[data.Length];
+            int index = 0;
+
+            foreach (var x in data)
+                if (x != 0)
+                    result[index++] = x;
+
+            while (index < result.Length)
+                result[index++] = 0;
+
+            return result;
         }
     }
 }
