@@ -9,6 +9,15 @@ services:
   mongo-express:
     image: mongo-express
 
+
+  es01:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.9.0
+   
+  kib01:
+    image: docker.elastic.co/kibana/kibana:7.9.0
+
+
+
   streaming.producer.api:
     image: ${DOCKER_REGISTRY-}streamingproducerapi
     build:
@@ -25,3 +34,9 @@ services:
 
 volumes:
     mongo-data:
+    data01:
+      driver: local
+  
+networks:
+  elastic:
+    driver: bridge

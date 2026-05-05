@@ -22,6 +22,7 @@ public class StreamController : ControllerBase
     {
         _logger.LogInformation("Start Executing Process Method of StreamController");
         var res= await _service.CreateProcess(new StreamProcessDto(request.Data));
+        _logger.LogDebug("Done Executing Process Method of StreamController");
         return Accepted(new StreamProcessStatusResponse(ProcessId:res.ProcessId, ProcessStatus:res.ProcessStatus));
     }
     [HttpGet("process/{id}/status")]
