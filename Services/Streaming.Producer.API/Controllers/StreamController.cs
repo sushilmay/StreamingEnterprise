@@ -20,30 +20,45 @@ public class StreamController : ControllerBase
     [HttpPost("process")]
     public async Task<IActionResult> Process([FromBody] StreamProcessRequest request)
     {
-        _logger.LogInformation("Start Executing Process Method of StreamController");
-        var res= await _service.CreateProcess(new StreamProcessDto(request.Data));
-        _logger.LogDebug("Done Executing Process Method of StreamController");
-        return Accepted(new StreamProcessStatusResponse(ProcessId:res.ProcessId, ProcessStatus:res.ProcessStatus));
+        MetricsService.IncrementRequest();
+
+        using (MetricsService.MeasureDuration())
+        {
+            _logger.LogInformation("Start Executing Process Method of StreamController");
+            var res = await _service.CreateProcess(new StreamProcessDto(request.Data));
+            _logger.LogDebug("Done Executing Process Method of StreamController");
+            return Accepted(new StreamProcessStatusResponse(ProcessId: res.ProcessId, ProcessStatus: res.ProcessStatus));
+        }
     }
     [HttpGet("process/{id}/status")]
     public async Task<IActionResult> ProcessStatus(Guid id)
     {
-        var res = await _service.GetProcessData(id);
+        MetricsService.IncrementRequest();
 
-        if (res == null)
-            return NotFound();
+        using (MetricsService.MeasureDuration())
+        {
+            var res = await _service.GetProcessData(id);
 
-        return Ok(new StreamProcessStatusResponse(ProcessId: res.ProcessId, ProcessStatus: res.ProcessStatus));
+            if (res == null)
+                return NotFound();
+
+            return Ok(new StreamProcessStatusResponse(ProcessId: res.ProcessId, ProcessStatus: res.ProcessStatus));
+        }
+       
     }
     [HttpGet("process/{id}")]
     public async Task<IActionResult> ProcessData(Guid id)
     {
+        MetricsService.IncrementRequest();
 
-        var res = await _service.GetProcessData(id);
+        using (MetricsService.MeasureDuration())
+        {
+            var res = await _service.GetProcessData(id);
 
-        if (res == null)
-            return NotFound();
+            if (res == null)
+                return NotFound();
 
-        return Ok(new StreamProcessResponse(ProcessId: res.ProcessId,Data:res.Data,OutputData:res.OutputData, ProcessStatus: res.ProcessStatus));
+            return Ok(new StreamProcessResponse(ProcessId: res.ProcessId, Data: res.Data, OutputData: res.OutputData, ProcessStatus: res.ProcessStatus));
+        }
     }
 }

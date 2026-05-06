@@ -31,6 +31,12 @@ services:
       context: .
       dockerfile: Services/Streaming.Processor/Dockerfile
 
+  prometheus:
+    image: prom/prometheus
+
+  grafana:
+    image: grafana/grafana
+
 
 volumes:
     mongo-data:

@@ -3,6 +3,7 @@ using HealthChecks.UI.Client;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.EntityFrameworkCore;
 using MongoDB.Driver;
+using Prometheus;
 using Serilog;
 using Serilog.Sinks.Elasticsearch;
 using Streaming.Producer.API.Exceptions.Handler;
@@ -16,8 +17,6 @@ var builder = WebApplication.CreateBuilder(args);
 var elasticUri = builder.Configuration["ElasticConfiguration:Uri"];
 var appName = builder.Configuration["ApplicationName"] ?? "dotnet-app";
 
-Console.WriteLine(elasticUri);
-Console.WriteLine(appName);
 var index = $"{appName}-logs-{builder.Environment.EnvironmentName?.ToLower().Replace(".", "-")}-{DateTime.UtcNow:yyyy-MM}";
 // Configure Serilog
 Log.Logger = new LoggerConfiguration()
@@ -78,4 +77,8 @@ app.UseHealthChecks("/health",
     {
         ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse
     });
+// Enable default metrics (HTTP requests, etc.)
+app.UseHttpMetrics();
+// Expose /metrics endpoint for Prometheus
+app.MapMetrics();
 app.Run();

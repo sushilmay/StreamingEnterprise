@@ -108,3 +108,13 @@ services:
       ELASTICSEARCH_HOSTS: http://es01:9200
     # networks:
     #   - elastic
+  
+  prometheus:
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+    ports:
+      - "9090:9090"
+
+  grafana:
+    ports:
+      - "3000:3000"
