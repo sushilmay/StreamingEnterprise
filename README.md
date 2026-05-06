@@ -1,6 +1,6 @@
 # StreamingEnterprise
 
-StreamingEnterprise is a .NET solution that demonstrates enterprise-style service architecture with modular layers, containerized deployment, and integrated observability using Prometheus, Grafana, and Kibana.
+StreamingEnterprise is a .NET solution that demonstrates enterprise-style micro service with onion architecture with modular layers, containerized deployment, and integrated observability using Prometheus, Grafana, and Kibana.
 
 ---
 
